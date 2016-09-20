@@ -8,9 +8,11 @@ var Crawler = require('simplecrawler'),
 const BASE_PAGE = '';
 
 var crawler = new Crawler(BASE_PAGE);
-crawler.maxDepth = 20;
+crawler.maxDepth = 1;
 
 var results = [];
+var responsiveCrawlerCount = 0;
+var mainDone = false;
 
 crawler.addFetchCondition(function (queueItem, referrerQueueItem) {
     return queueItem.url.indexOf(BASE_PAGE) === 0;
@@ -64,6 +66,8 @@ crawler.on('fetchcomplete', function (queueItem, responseBuffer) {
             var responsiveCrawler = new Crawler(website);
             responsiveCrawler.maxDepth = 1;
 
+            ++responsiveCrawlerCount;
+
             responsiveCrawler.on('fetchcomplete', function (queueItem, responseBuffer) {
                 var $ = cheerio.load(responseBuffer.toString('utf8'));
                 responsive = !!$('meta[name="viewport"]').contents().length;
@@ -72,15 +76,26 @@ crawler.on('fetchcomplete', function (queueItem, responseBuffer) {
             responsiveCrawler.on('complete', function () {
                 output.responsive = responsive;
                 results.push(output);
+                --responsiveCrawlerCount;
+
+                end();
             });
+
+            responsiveCrawler.start();
         } else {
             results.push(output);
         }
     });
 });
 
-crawler.on('complete', function () {
+function end() {
+    if (mainDone && responsiveCrawlerCount > 0) return;
     console.log(JSON.stringify({ results: results }, null, 4));
+}
+
+crawler.on('complete', function () {
+    mainDone = true;
+    end();
 });
 
 crawler.start();
