@@ -92,7 +92,12 @@ crawler.on('fetchcomplete', function (queueItem, responseBuffer) {
 
 function end() {
     if (!mainDone || responsiveCrawlerCount > 0) return;
-    console.log(JSON.stringify({ results: results }, null, 4));
+
+    // console.log(JSON.stringify({ results: results }, null, 4));
+
+    results.forEach(function (e) {
+        console.log([e.name, e.phone, e.street, e.postalCode, e.locality, e.website, (e.responsive ? ' ' : 'potenzieller Kunde')].join(';'));
+    });
 }
 
 crawler.on('complete', function () {
