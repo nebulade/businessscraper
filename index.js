@@ -68,10 +68,13 @@ crawler.on('fetchcomplete', function (queueItem, responseBuffer) {
 
             request({ uri: website }, function (error, response, body) {
                 --responsiveCrawlerCount;
-                var $ = cheerio.load(body);
 
-                responsive = !!$('meta[name="viewport"]').length;
-                output.responsive = responsive;
+                if (!error) {
+                    var $ = cheerio.load(body);
+
+                    responsive = !!$('meta[name="viewport"]').length;
+                    output.responsive = responsive;
+                }
 
                 results.push(output);
 
