@@ -29,6 +29,10 @@ crawler.on('fetchcomplete', function (queueItem, responseBuffer) {
         tmp = $(this).find('.teilnehmertelefon').find('.nummer').contents()[0];
         var phone = tmp ? tmp.data : '';
 
+        tmp = $(this).find('.teilnehmertelefon').find('.nummer_ganz').find('.encode_me').attr('data-telsuffix');
+        if (tmp) tmp = new Buffer(tmp, 'base64').toString('ascii');
+        phone += tmp ? tmp : '';
+
         tmp = $(this).find('.name').find('span').contents()[0];
         var name = tmp ? tmp.data : '';
 
